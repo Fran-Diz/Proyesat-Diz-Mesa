@@ -50,7 +50,7 @@ def contar_por_grupo(registros):
     return conteo
 
 
-def lanzamientos_por_año(registros):
+def lanzamientos_por_anio(registros):
     """Devuelve un diccionario {año: cantidad de satélites lanzados ese año}."""
     conteo = {}
     for registro in registros:
@@ -66,5 +66,5 @@ if __name__ == "__main__":
     print("Año ISS:", anio_lanzamiento(iss))
     print(grupo("STARLINK-1234"), grupo("ISS (ZARYA)"))
     print(contar_por_grupo(registros))
-    print(sorted(lanzamientos_por_año(registros).items())[-5:])
+    print(sorted(lanzamientos_por_anio(registros).items())[-5:])
     print(leer_satelites("no_existe.json"))
