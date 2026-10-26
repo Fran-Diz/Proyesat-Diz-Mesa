@@ -60,7 +60,7 @@ def lanzamientos_por_anio(registros):
 
 
 if __name__ == "__main__":
-    registros = leer_satelites("Datos/satelites.json")
+    registros = leer_satelites("datos/satelites.json")
     print(len(registros), "registros")
     iss = [r for r in registros if r["OBJECT_NAME"] == "ISS (ZARYA)"][0]
     print("Año ISS:", anio_lanzamiento(iss))

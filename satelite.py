@@ -54,7 +54,7 @@ if __name__ == "__main__":
     from datetime import datetime, timezone
     from catalogo import leer_satelites
 
-    registros = leer_satelites("Datos/satelites.json")
+    registros = leer_satelites("datos/satelites.json")
     ahora = datetime.now(timezone.utc)
     satelites = crear_satelites(registros, ahora)
     print(len(registros), "registros ->", len(satelites), "satélites")
