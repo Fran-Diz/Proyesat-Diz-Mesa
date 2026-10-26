@@ -11,8 +11,3 @@
 
 
 
-
-
-capoooooo, prueba de comunicacion grupal
-
-
