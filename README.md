@@ -1,18 +1,5 @@
 
-# Proyesat-Diz-Mesa
-
-   ## Integrantes
-   - Franco Diz
-   - Lautaro Mesa
-
-   ## Cómo correr el proyecto
-   1. Crear el ambiente: `python3 -m venv .venv`
-   2. Activarlo: `source .venv/bin/activate`
-   3. Instalar: `pip install skyfield numpy jupyter`
-
-
-
-Trabajo Práctico de Programación 1: seguimiento y caracterización de satélites.
+# Trabajo Práctico de Programación 1: seguimiento y caracterización de satélites.
 
 Lee un catálogo de satélites en formato JSON (datos de CelesTrak), calcula la posición de cada uno en el momento actual con Skyfield y genera estadísticas: conteo por grupo y por tipo de órbita, lanzamientos por año, altitudes por grupo y satélites sobre una zona geográfica (Bariloche). El análisis se presenta en el notebook informe.ipynb. 
 
