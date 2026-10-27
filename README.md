@@ -5,8 +5,8 @@ Lee un catálogo de satélites en formato JSON (datos de CelesTrak), calcula la 
 
 
 
-# estructura 
-
+# Estructura 
+```
 ├── README.md
 ├── .gitignore
 ├── funciones_base.py   provisto: cálculos con Skyfield
@@ -16,8 +16,8 @@ Lee un catálogo de satélites en formato JSON (datos de CelesTrak), calcula la 
 ├── informe.ipynb       el informe: importa y usa los módulos
 └── datos/
     └── satelites.json  provisto: 16.710 satélites 
+```
 
-   
 
 ## Integrantes y tareas
 
@@ -32,23 +32,28 @@ Lee un catálogo de satélites en formato JSON (datos de CelesTrak), calcula la 
 - `catalogo.py`: `leer_satelites`, `anio_lanzamiento`, `grupo`, `contar_por_grupo` y `lanzamientos_por_anio`.
 - `satelite.py`: clase `Satelite` y `crear_satelites`.
 - `analisis.py`: `contar_por_tipo`, `mas_bajo` y `mas_alto`.
-- Informe: secciones 2 a 8 (grupos, lanzamientos por año, tipos de órbita, extremos, comparación de grupos, Bariloche y conclusiones).
+- Informe: secciones 2 a 8.
 
 # Cómo correr el proyecto 
 
-1. crear el ambiente:
+1. Crear el ambiente:
+```pyhton
 
    python3 -m venv .venv 
+   
+```
 
 2. Activarlo (hay que hacerlo en cada terminal nueva): 
-
+```
    source .venv/bin/activate 
+```
 
 3. Instalar las dependencias:
-
+```
    pip install skyfield numpy matplotlib jupyterlab
+```
 
-# abribr el informe 
+# Abrir el informe 
 
 Desde VS Code: abrir la carpeta del proyecto, abrir informe.ipynb y elegir el kernel .venv
 
