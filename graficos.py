@@ -57,6 +57,34 @@ def plot_lanzamientos_apilados(dict1, dict2, label1="Starlink", label2="Resto",
     else:
         plt.show()
 
+def plot_altura_media_por_grupo(resumen, ruta_guardado=None):
+    """Dibuja barras con la altitud media de cada grupo.
+
+    Recibe lo que devuelve resumen_por_grupo: {grupo: {"media": ..., ...}}.
+    Los grupos se ordenan de menor a mayor altitud media.
+    """
+    # Lista de pares (media, grupo): al ordenarla queda de menor a mayor media
+    pares = sorted((datos["media"], g) for g, datos in resumen.items())
+    grupos = [g for media, g in pares]
+    medias = [media for media, g in pares]
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+    barras = ax.bar(grupos, medias, color='steelblue')
+    ax.set_yscale("log")
+    ax.bar_label(barras, fmt="%.0f")
+
+    _configurar_estilo(ax, "Grupo", "Altitud media (km, escala logarítmica)",
+                       "Altitud media por grupo")
+
+    fig.tight_layout()
+
+    if ruta_guardado:
+        fig.savefig(ruta_guardado)
+        plt.close(fig)
+    else:
+        plt.show()
+
+
 if __name__ == "__main__":
     # Asegurarse de que la carpeta 'salidas/' exista
     Path("salidas").mkdir(parents=True, exist_ok=True)
@@ -83,4 +111,15 @@ if __name__ == "__main__":
         ruta_guardado="salidas/lanzamientos_apilados.png"
     )
     
+    # 3. Altitud media por grupo
+    from datetime import datetime, timezone
+    from satelite import crear_satelites
+    from analisis import resumen_por_grupo
+
+    satelites = crear_satelites(registros, datetime.now(timezone.utc))
+    plot_altura_media_por_grupo(
+        resumen_por_grupo(satelites),
+        ruta_guardado="salidas/altura_media_por_grupo.png"
+    )
+
     print("¡Gráficos de la Etapa 2 generados y guardados en salidas/ con éxito!")
