@@ -3,6 +3,7 @@
 Lee un catálogo de satélites en formato JSON (datos de CelesTrak), calcula la posición de cada uno en el momento actual con Skyfield y genera estadísticas: conteo por grupo y por tipo de órbita, lanzamientos por año, altitudes por grupo y satélites sobre una zona geográfica (Bariloche). El análisis se presenta en el notebook informe.ipynb. 
 
 # Estructura
+```
 ├── README.md
 ├── .gitignore
 ├── funciones_base.py   provisto: cálculos con Skyfield
@@ -12,6 +13,7 @@ Lee un catálogo de satélites en formato JSON (datos de CelesTrak), calcula la 
 ├── informe.ipynb       el informe: importa y usa los módulos
 └── datos/
 └── satelites.json  provisto: 16.710 satélites
+```
 
 ## Etapas del desarrollo
 
