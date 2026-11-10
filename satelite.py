@@ -63,3 +63,6 @@ if __name__ == "__main__":
     print(iss.esta_en_zona((-180, -90, 180, 90)))
     print(Satelite("x", 0, 0, 36000).tipo_orbita(), Satelite("x", 0, 0, 2000).tipo_orbita(),
           Satelite("x", 0, 0, 37000).tipo_orbita(), Satelite("x", 0, 0, 37001).tipo_orbita())
+
+
+
