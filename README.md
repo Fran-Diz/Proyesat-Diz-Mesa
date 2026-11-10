@@ -12,7 +12,7 @@ Lee un catálogo de satélites en formato JSON (datos de CelesTrak), calcula la 
 ├── analisis.py         conteos, extremos, ordenamiento, zonas y resúmenes
 ├── informe.ipynb       el informe: importa y usa los módulos
 └── datos/
-└── satelites.json  provisto: 16.710 satélites
+    └── satelites.json  provisto: 16.710 satélites 
 ```
 
 ## Etapas del desarrollo
