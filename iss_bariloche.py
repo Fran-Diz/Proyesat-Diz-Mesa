@@ -11,25 +11,26 @@ from funciones_base import (
     obtener_trayectoria
 )
 
-# Zona de Bariloche provista por la consigna: (lon_min, lat_min, lon_max, lat_max)
+# Zona de Bariloche exportable para ser importada desde otros lados del proyecto
 BARILOCHE = (-76.30, -46.13, -66.30, -36.13)
 
 def buscar_iss(registros):
     """
-    Busca los registros que coincidan con la ISS, imprime cuántos matchean 
-    y retorna el primero encontrado.
+    Busca el registro exacto de la ISS utilizando su NORAD_CAT_ID oficial (25544),
+    evitando coincidencias erróneas por texto parcial en el nombre.
     """
-    coincidencias = []
+    for reg in registros:
+        norad_id = reg.get('NORAD_CAT_ID') or reg.get('norad_cat_id')
+        if norad_id == 25544 or str(norad_id) == '25544':
+            print(f"Objeto encontrado por NORAD ID: {reg.get('OBJECT_NAME', 'ISS')}")
+            return reg
+            
+    print("Aviso: No se encontró por ID 25544, buscando por nombre exacto...")
     for reg in registros:
         nombre = reg.get('OBJECT_NAME', reg.get('name', '')).upper()
-        if 'ISS' in nombre or 'SPACE STATION' in nombre:
-            coincidencias.append(reg)
+        if nombre.strip() == 'ISS (ZARYA)' or nombre.strip() == 'ISS':
+            return reg
             
-    print(f"Cantidad de registros coincidentes con la ISS: {len(coincidencias)}")
-    
-    if len(coincidencias) > 0:
-        print(f"Objeto seleccionado: {coincidencias[0].get('OBJECT_NAME', 'Desconocido')}")
-        return coincidencias[0]
     return None
 
 def cortar_saltos_longitud(lons, lats, umbral=180):
@@ -49,11 +50,34 @@ def cortar_saltos_longitud(lons, lats, umbral=180):
         
     return np.array(lons_corte), np.array(lats_corte)
 
+def evaluar_zona_bariloche(lats, lons, zona=BARILOCHE):
+    """
+    Recibe los arrays de latitudes y longitudes de la trayectoria y la zona geográfica.
+    Calcula la cantidad total de minutos dentro de la zona y cuántas 'pasadas' realizó
+    (contando como pasada cada ingreso desde el exterior hacia el interior).
+    """
+    lon_min, lat_min, lon_max, lat_max = zona
+    
+    minutos_dentro = 0
+    pasadas = 0
+    dentro_anterior = False
+    
+    for lat, lon in zip(lats, lons):
+        actual_dentro = (lon_min <= lon <= lon_max) and (lat_min <= lat <= lat_max)
+        
+        if actual_dentro:
+            minutos_dentro += 1
+            if not dentro_anterior:
+                pasadas += 1
+                
+        dentro_anterior = actual_dentro
+        
+    return minutos_dentro, pasadas
+
 def procesar_datos_iss(ruta_json="datos/satelites.json", horas=4):
     """
-    Procesa los datos del catálogo, calcula la posición actual, la trayectoria
-    y calcula de forma exacta los días transcurridos desde el EPOCH del registro.
-    Retorna un diccionario con los datos.
+    Procesa los datos del catálogo, calcula la posición actual, la trayectoria,
+    los días transcurridos desde el EPOCH y evalúa el paso por la zona de Bariloche.
     """
     registros = leer_satelites(ruta_json)
     reg_iss = buscar_iss(registros)
@@ -69,15 +93,16 @@ def procesar_datos_iss(ruta_json="datos/satelites.json", horas=4):
     lat_act, lon_act, alt_act = obtener_posicion(obj_iss, momento_actual)
     lats, lons, alts = obtener_trayectoria(obj_iss, momento_actual, horas=horas, paso_min=1)
 
-    # Cálculo exacto de días transcurridos asignando la zona horaria UTC
+    # Evaluación del paso por Bariloche
+    minutos_zona, num_pasadas = evaluar_zona_bariloche(lats, lons, BARILOCHE)
+
+    # Cálculo exacto de días transcurridos desde el EPOCH
     dias_transcurridos = None
     if 'EPOCH' in reg_iss:
         epoch_str = reg_iss['EPOCH']
-        # Convertimos a datetime y le asignamos la zona horaria UTC (aware)
         epoch_dt = datetime.fromisoformat(epoch_str.replace('Z', '+00:00'))
         if epoch_dt.tzinfo is None:
             epoch_dt = epoch_dt.replace(tzinfo=timezone.utc)
-            
         dias_transcurridos = (momento_actual - epoch_dt).days
 
     return {
@@ -88,7 +113,9 @@ def procesar_datos_iss(ruta_json="datos/satelites.json", horas=4):
         "lats": lats,
         "lons": lons,
         "alts": alts,
-        "dias_transcurridos": dias_transcurridos
+        "dias_transcurridos": dias_transcurridos,
+        "minutos_zona": minutos_zona,
+        "num_pasadas": num_pasadas
     }
 
 def plotear_trayectoria_iss(datos, ruta_guardado="salidas/iss_bariloche.png"):
@@ -106,7 +133,6 @@ def plotear_trayectoria_iss(datos, ruta_guardado="salidas/iss_bariloche.png"):
     lon_act = datos["lon_act"]
     dias = datos["dias_transcurridos"]
 
-    # Corte de saltos en 180°
     lons_graf, lats_graf = cortar_saltos_longitud(lons, lats)
 
     fig, ax = plt.subplots(figsize=(10, 6))
@@ -114,7 +140,6 @@ def plotear_trayectoria_iss(datos, ruta_guardado="salidas/iss_bariloche.png"):
     ax.plot(lons_graf, lats_graf, color='tab:blue', label='Trayectoria propagada', linewidth=1.5)
     ax.scatter([lon_act], [lat_act], color='red', zorder=5, label='Posición Actual')
 
-    # Rectángulo de Bariloche
     rect = Rectangle(
         (BARILOCHE[0], BARILOCHE[1]), 
         BARILOCHE[2] - BARILOCHE[0], 
@@ -150,6 +175,7 @@ if __name__ == "__main__":
     datos_iss = procesar_datos_iss(horas=4)
     if datos_iss:
         print(f"Posición actual -> Lat: {datos_iss['lat_act']:.2f}°, Lon: {datos_iss['lon_act']:.2f}°, Alt: {datos_iss['alt_act']:.2f} km")
+        print(f"Minutos en Bariloche: {datos_iss['minutos_zona']} | Pasadas: {datos_iss['num_pasadas']}")
         if datos_iss['dias_transcurridos'] is not None:
             print(f"Aviso: Han transcurrido {datos_iss['dias_transcurridos']} días desde el epoch del catálogo.")
         plotear_trayectoria_iss(datos_iss)
