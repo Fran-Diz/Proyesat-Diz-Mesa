@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-import numpy as np
 from pathlib import Path
 from catalogo import leer_satelites, lanzamientos_por_anio, grupo
 
@@ -22,11 +21,10 @@ def plot_lanzamientos_por_anio(lanzamientos_dict, anio_min=1990, anio_max=2026, 
     
     _configurar_estilo(ax, "Año", "Cantidad de satélites lanzados", 
                          "Lanzamientos de satélites por año", (anio_min - 1, anio_max + 1))
-    
+
     fig.tight_layout()
     
     if ruta_guardado:
-        Path(ruta_guardado).parent.mkdir(parents=True, exist_ok=True)
         fig.savefig(ruta_guardado)
         plt.close(fig)
     else:
@@ -54,19 +52,18 @@ def plot_lanzamientos_apilados(dict1, dict2, label1="Starlink", label2="Resto",
     fig.tight_layout()
     
     if ruta_guardado:
-        Path(ruta_guardado).parent.mkdir(parents=True, exist_ok=True)
         fig.savefig(ruta_guardado)
         plt.close(fig)
     else:
         plt.show()
 
 def plot_altura_media_por_grupo(resumen, ruta_guardado=None):
-    """
-    Dibuja barras con la altitud media de cada grupo.
+    """Dibuja barras con la altitud media de cada grupo.
 
     Recibe lo que devuelve resumen_por_grupo: {grupo: {"media": ..., ...}}.
     Los grupos se ordenan de menor a mayor altitud media.
     """
+    # Lista de pares (media, grupo): al ordenarla queda de menor a mayor media
     pares = sorted((datos["media"], g) for g, datos in resumen.items())
     grupos = [g for media, g in pares]
     medias = [media for media, g in pares]
@@ -82,80 +79,6 @@ def plot_altura_media_por_grupo(resumen, ruta_guardado=None):
     fig.tight_layout()
 
     if ruta_guardado:
-        Path(ruta_guardado).parent.mkdir(parents=True, exist_ok=True)
-        fig.savefig(ruta_guardado)
-        plt.close(fig)
-    else:
-        plt.show()
-
-def plot_histograma_altitudes(altitudes, ancho_bin, ruta_guardado=None):
-    """
-    Genera un histograma de altitudes entre 200 y 2000 km con el ancho de bin indicado.
-    Los valores fuera de ese rango son ignorados por los bins especificados.
-    """
-    bins = np.arange(200, 2000 + ancho_bin, ancho_bin)
-    
-    fig, ax = plt.subplots(figsize=(10, 5))
-    ax.hist(altitudes, bins=bins, color='steelblue', edgecolor='black', alpha=0.8)
-    
-    _configurar_estilo(ax, "Altitud (km)", "Cantidad de satélites",
-                       f"Histograma de altitudes (ancho_bin = {ancho_bin} km)", (200, 2000))
-    
-    fig.tight_layout()
-    
-    if ruta_guardado:
-        Path(ruta_guardado).parent.mkdir(parents=True, exist_ok=True)
-        fig.savefig(ruta_guardado)
-        plt.close(fig)
-    else:
-        plt.show()
-
-def plot_histograma_log_altitudes(altitudes, num_bins=50, ruta_guardado=None):
-    """Histograma de todas las altitudes con el eje X en escala logarítmica."""
-    # Filtro de seguridad para evitar errores con ceros o negativos en log10
-    altitudes_validas = [a for a in altitudes if a > 0]
-    bins = np.logspace(np.log10(min(altitudes_validas)), np.log10(max(altitudes_validas)), num_bins)
-    
-    fig, ax = plt.subplots(figsize=(10, 5))
-    ax.hist(altitudes_validas, bins=bins, color='tab:green', edgecolor='black', alpha=0.8)
-    ax.set_xscale("log")
-    
-    _configurar_estilo(ax, "Altitud (km, escala logarítmica)", "Cantidad de satélites",
-                       "Histograma logarítmico de todas las altitudes")
-    
-    fig.tight_layout()
-    
-    if ruta_guardado:
-        Path(ruta_guardado).parent.mkdir(parents=True, exist_ok=True)
-        fig.savefig(ruta_guardado)
-        plt.close(fig)
-    else:
-        plt.show()
-
-def plot_histograma_inclinaciones(registros, grupo_filtro=None, ruta_guardado=None):
-    """
-    Histograma de 'INCLINATION' de 0° a 180°, con bins de 1°.
-    Permite filtrar opcionalmente por grupo específico.
-    """
-    if grupo_filtro:
-        regs = [r for r in registros if grupo(r["OBJECT_NAME"]) == grupo_filtro and "INCLINATION" in r]
-        titulo = f"Histograma de inclinaciones: {grupo_filtro} (0° a 180°)"
-    else:
-        regs = [r for r in registros if "INCLINATION" in r]
-        titulo = "Histograma de inclinaciones (0° a 180°)"
-        
-    inclinaciones = [r["INCLINATION"] for r in regs]
-    bins = np.arange(0, 181, 1)
-    
-    fig, ax = plt.subplots(figsize=(10, 5))
-    ax.hist(inclinaciones, bins=bins, color='tab:orange', edgecolor='black', alpha=0.8)
-    
-    _configurar_estilo(ax, "Inclinación (°)", "Cantidad de satélites", titulo, (0, 180))
-    
-    fig.tight_layout()
-    
-    if ruta_guardado:
-        Path(ruta_guardado).parent.mkdir(parents=True, exist_ok=True)
         fig.savefig(ruta_guardado)
         plt.close(fig)
     else:
@@ -163,16 +86,19 @@ def plot_histograma_inclinaciones(registros, grupo_filtro=None, ruta_guardado=No
 
 
 if __name__ == "__main__":
+    # Asegurarse de que la carpeta 'salidas/' exista
+    Path("salidas").mkdir(parents=True, exist_ok=True)
+    
     registros = leer_satelites("datos/satelites.json")
     
-    # 1. Gráfico de lanzamientos por año
+    # 1. Guardar el gráfico de lanzamientos por año
     lanzamientos = lanzamientos_por_anio(registros)
     plot_lanzamientos_por_anio(
         lanzamientos, 
         ruta_guardado="salidas/lanzamientos_por_anio.png"
     )
     
-    # 2. Gráfico de barras apiladas (Starlink vs Resto)
+    # 2. Separar Starlink del resto y guardar el gráfico de barras apiladas
     registros_starlink = [r for r in registros if grupo(r["OBJECT_NAME"]) == "Starlink"]
     registros_resto = [r for r in registros if grupo(r["OBJECT_NAME"]) != "Starlink"]
     
@@ -196,42 +122,4 @@ if __name__ == "__main__":
         ruta_guardado="salidas/altura_media_por_grupo.png"
     )
 
-    # 4. Histogramas de altitudes en órbita baja
-    altitudes_totales = [s.altitud_km for s in satelites]
-    
-    plot_histograma_altitudes(
-        altitudes_totales, 
-        ancho_bin=10, 
-        ruta_guardado="salidas/histograma_altitudes_10.png"
-    )
-    
-    plot_histograma_altitudes(
-        altitudes_totales, 
-        ancho_bin=50, 
-        ruta_guardado="salidas/histograma_altitudes_50.png"
-    )
-
-    # 5. Histograma logarítmico de todas las altitudes
-    plot_histograma_log_altitudes(
-        altitudes_totales,
-        num_bins=50,
-        ruta_guardado="salidas/histograma_log_altitudes.png"
-    )
-
-    # 6. Histograma de inclinaciones (General, Starlink y GPS)
-    plot_histograma_inclinaciones(
-        registros,
-        ruta_guardado="salidas/histograma_inclinaciones_general.png"
-    )
-    plot_histograma_inclinaciones(
-        registros,
-        grupo_filtro="Starlink",
-        ruta_guardado="salidas/histograma_inclinaciones_starlink.png"
-    )
-    plot_histograma_inclinaciones(
-        registros,
-        grupo_filtro="GPS",
-        ruta_guardado="salidas/histograma_inclinaciones_gps.png"
-    )
-
-    print("¡Todos los gráficos de la Etapa 2 generados y guardados en salidas/ con éxito!")
+    print("¡Gráficos de la Etapa 2 generados y guardados en salidas/ con éxito!")
