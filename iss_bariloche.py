@@ -11,6 +11,8 @@ from funciones_base import (
     obtener_trayectoria
 )
 
+
+
 # Zona de Bariloche exportable para ser importada desde otros lados del proyecto
 BARILOCHE = (-76.30, -46.13, -66.30, -36.13)
 

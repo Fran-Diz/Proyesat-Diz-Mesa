@@ -111,9 +111,11 @@ def plot_histograma_altitudes(altitudes, ancho_bin, ruta_guardado=None):
         plt.show()
 
 def plot_histograma_log_altitudes(altitudes, num_bins=50, ruta_guardado=None):
+
     """Histograma de todas las altitudes con el eje X en escala logarítmica."""
     # Filtro de seguridad para evitar errores con ceros o negativos en log10
     altitudes_validas = [a for a in altitudes if a > 0]
+    
     bins = np.logspace(np.log10(min(altitudes_validas)), np.log10(max(altitudes_validas)), num_bins)
     
     fig, ax = plt.subplots(figsize=(10, 5))

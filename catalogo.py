@@ -55,7 +55,7 @@ def lanzamientos_por_anio(registros):
     conteo = {}
     for registro in registros:
         anio = anio_lanzamiento(registro)
-        conteo[anio] = conteo.get(anio, 0) + 1
+        conteo[anio] = conteo.get(anio, 0) + 1 # va sumando 1 a la cantidad de satélites lanzados en ese año
     return conteo
 
 
